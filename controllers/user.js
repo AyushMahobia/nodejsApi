@@ -1,42 +1,63 @@
 import { User } from "../models/user.js";
+import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken"
+import { sendCookie } from "../utils/features.js";
 
-export const allUserDetails = async (req, res) => {
-    const users = await User.find({});
-    res.json({
-        success: true,
-        users,
-    })
+export const login = async(req, res) => {
+    const {email, password} = req.body;
+
+    let user = await User.findOne({email}).select("+password");
+    if(!user)
+    return res.json({
+        success: false,
+        message:"Invalid email or password"
+    });
+
+    const isMatch = bcrypt.compare(password, user.password);
+    if(!isMatch)
+    return res.json({
+        success: false,
+        message:"Invalid email or password",
+    });
+
+    sendCookie(user, res, `Welcome back, ${user.name} ✌`, 201);
 }
 
-export const createUser = async (req, res) => {
-    try {
-        const { name, email, password } = req.body;
-        await User.create({
-            name, email, password
-        })
-        res.status(201).json({ //201 for created
-            success: true,
-            messages: "Register successfuly"
-        })
-    } catch (error) {
-        console.log(error)
-    }
+export const register = async (req, res) => {
+    const {name, email, password} = req.body;
+
+    let user = await User.findOne({email});
+    if(user)
+    return res.status(404).json({
+        success: false,
+        message: "User Already Exist",
+    })
+
+    const hashPassword = await bcrypt.hash(password, 10);
+
+    user = await User.create({
+        name,
+        email,
+        password: hashPassword,
+    });
+
+    sendCookie(user, res, "Registed Successfully", 201);
 }
 
-export const special = async (req, res) => {
+export const getAllUsers = async (req, res) => {}
 
-    res.json({
+export const getMyDetail = (req, res) => {
+    
+    res.status(200).json({
         success: true,
-        message:"Just joking",
-    })
+        user: req.user,
+    });
 }
+export const logout = (req, res) => {
 
-export const findUserById = async (req, res) => {
-    const { id } = req.params;
-    const user = await User.findById(id);
-
-    res.json({
+    res.status(200).cookie("token", null, {
+        expires: new Date(Date.now())
+    }).json({
         success: true,
-        user,
-    })
+    });
 }
