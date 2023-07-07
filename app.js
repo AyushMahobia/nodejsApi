@@ -15,7 +15,7 @@ config({
 app.use(express.json());
 app.use(cookieParser());
 //Using routes
-app.use('/api/v1/users', userRouter)
+app.use('/api/v1/user', userRouter)
 app.use('/api/v1/task', userTask)
 
 
