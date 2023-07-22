@@ -9,19 +9,19 @@ import cors from "cors"
 export const app = express(); // creating server
 
 config({
-    path:"./data/config.env"
+  path: "./data/config.env"
 })
 
 //Using Middleware
 app.use(express.json());
 app.use(cookieParser());
 app.use(
-    cors({
-      origin: [process.env.FRONTEND_URL],
-      methods: ["GET", "POST", "PUT", "DELETE"],
-      credentials: true,
-    })
-  );
+  cors({
+    origin: [process.env.FRONTEND_URL],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 
 //Using routes
 app.use('/api/v1/user', userRouter)
@@ -29,7 +29,7 @@ app.use('/api/v1/task', userTask)
 
 
 app.get("/", (req, res) => {
-    res.send("Nice working")
+  res.send("Nice working")
 })
 
 //using eror middleware
